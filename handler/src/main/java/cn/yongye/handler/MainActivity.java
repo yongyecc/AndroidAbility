@@ -31,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
 
         ArrayList<String> demos = new ArrayList<>();
         demos.add("动态更新Activity界面");
+        demos.add("两个线程互相发送消息");
         ItemAdapter itemAdapter = new ItemAdapter(this, demos);
         listView.setAdapter(itemAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -38,13 +39,18 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Toast.makeText(MainActivity.this, String.format("Click %s item.", i),
                         Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent();
+                String targetClass = null;
                 switch (i){
                     case 0:
-                        Intent intent = new Intent();
-                        intent.setComponent(new ComponentName("cn.yongye.handler", "cn.yongye.handler.demo.UpdateUIThread"));
-                        startActivity(intent);
+                        targetClass = "cn.yongye.handler.demo.UpdateUIThread";
+                        break;
+                    case 1:
+                        targetClass = "cn.yongye.handler.demo.Demo2ThreadAToThreadB";
                         break;
                 }
+                intent.setComponent(new ComponentName(getPackageName(), targetClass));
+                startActivity(intent);
             }
         });
     }
