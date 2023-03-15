@@ -21,6 +21,8 @@
         <activity android:name=".demo.UpdateUIThread"/>
 
         <activity android:name=".demo.Demo2ThreadAToThreadB"/>
+        <activity android:name=".demo.bindview.BindViewActivity"/>
+        <activity android:name="com.thundersec.mylibrary.LibMainActivity"/>
     </application>
 
 </manifest>

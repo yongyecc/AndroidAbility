@@ -16,10 +16,13 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.thundersec.mylibrary.LibMainActivity;
+
 import java.sql.Array;
 import java.util.ArrayList;
 
 import cn.yongye.handler.common.Config;
+import cn.yongye.handler.demo.bindview.BindViewActivity;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -32,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<String> demos = new ArrayList<>();
         demos.add("动态更新Activity界面");
         demos.add("两个线程互相发送消息");
+        demos.add("BindView测试");
         ItemAdapter itemAdapter = new ItemAdapter(this, demos);
         listView.setAdapter(itemAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -47,6 +51,9 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case 1:
                         targetClass = "cn.yongye.handler.demo.Demo2ThreadAToThreadB";
+                        break;
+                    case 2:
+                        targetClass = LibMainActivity.class.getName();
                         break;
                 }
                 intent.setComponent(new ComponentName(getPackageName(), targetClass));

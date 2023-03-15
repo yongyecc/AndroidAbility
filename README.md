@@ -61,3 +61,39 @@ public void startAddNumberThread(){
 3. 实现效果。
 
 ![demo1](https://img-blog.csdnimg.cn/5329dacf425a404d918b35ed4aced64f.gif)
+
+# 【第三方库】ButterKnife-BindView
+
+## 准备
+
+Android Library 项目使用BindView能力。
+
+1. 添加插件到库项目的编译脚本里`mylibrary/build.gradle`
+```
+buildscript {
+  repositories {
+    mavenCentral()
+    google()
+  }
+  dependencies {
+    classpath 'com.jakewharton:butterknife-gradle-plugin:10.2.3'
+  }
+}
+```
+
+2. 应用插件
+```
+apply plugin: 'com.jakewharton.butterknife'
+```
+
+3. 使用BindView时，用R2替代R类
+```java
+class ExampleActivity extends Activity {
+  @BindView(R2.id.user) EditText username;
+  @BindView(R2.id.pass) EditText password;
+}
+```
+
+## 参考
+
+【1】 https://github.com/JakeWharton/butterknife
