@@ -64,11 +64,17 @@ public void startAddNumberThread(){
 
 # 【第三方库】ButterKnife-BindView
 
-## 准备
+## 准备环境
 
 Android Library 项目使用BindView能力。
 
-1. 添加插件到库项目的编译脚本里`mylibrary/build.gradle`
+
+1. 【可选】如果Library库build.gradle的android字段中有namespace，删除它并修改AndroidManifest.xml，添加package字段
+```
+package="com.thundersec.mylibrary"
+```
+
+2添加插件到库项目的编译脚本里`mylibrary/build.gradle`
 ```
 buildscript {
   repositories {
@@ -81,12 +87,16 @@ buildscript {
 }
 ```
 
-2. 应用插件
+3. 应用插件
 ```
 apply plugin: 'com.jakewharton.butterknife'
+
+//butterknife
+implementation 'com.jakewharton:butterknife:10.0.0'
+annotationProcessor 'com.jakewharton:butterknife-compiler:10.0.0'
 ```
 
-3. 使用BindView时，用R2替代R类
+使用BindView时，用R2替代R类
 ```java
 class ExampleActivity extends Activity {
   @BindView(R2.id.user) EditText username;
