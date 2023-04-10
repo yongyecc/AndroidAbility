@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Android功能集</string>
+    
+    <!-- Demo列表-->
+    <string name="screen_record_mediarecoder">屏幕录像(MediaRecoder)</string>
+    <string name="screen_record_mediamuxer">屏幕录像(MediaMuxer)</string>
+</resources>
