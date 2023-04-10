@@ -12,6 +12,11 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
+
+
+
+
 rootProject.name = "AndroidAbility"
 include ':app'
 include ':handler'
+include ':mylibrary'
