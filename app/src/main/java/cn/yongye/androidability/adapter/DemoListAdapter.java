@@ -1,23 +1,18 @@
 package cn.yongye.androidability.adapter;
 
 import static cn.yongye.androidability.screenrecord.service.ScreenRecordService.REQUEST_SCREEN_RECORDER_PERMISSION;
-import static cn.yongye.androidability.screenrecord.service.ScreenRecordService.screenPermission;
 import android.content.Context;
 import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.RecyclerView;
-
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-
 import cn.yongye.androidability.R;
 import cn.yongye.androidability.activity.MainActivity;
 import cn.yongye.androidability.common.LogUtil;
@@ -37,7 +32,6 @@ public class DemoListAdapter extends RecyclerView.Adapter<DemoListAdapter.ViewHo
         this.mData = data;
         mInflater = LayoutInflater.from(context);
     }
-
 
     @NonNull
     @Override
@@ -84,8 +78,8 @@ public class DemoListAdapter extends RecyclerView.Adapter<DemoListAdapter.ViewHo
                          R.string.screen_record_mediarecoder))) {
                      ScreenRecordBean.SCREEN_RECORD_TYPE = ScreenRecordBean.RECORD_TYPE_MEDIARECORD;
                      //检查权限并申请屏幕共享权限
-                     PermissionUtil.checkAndRequestMorePermissions(MainActivity.mainActivity, screenPermission,
-                             REQUEST_SCREEN_RECORDER_PERMISSION);
+                     PermissionUtil.checkAndRequestMorePermissions(MainActivity.mainActivity,
+                             ScreenRecordBean.screenPermission, REQUEST_SCREEN_RECORDER_PERMISSION);
                      //开启屏幕录制(MediaRecorder)
                      if (!ScreenRecordBean.RECORD_STATUS) {
                          ScreenRecordManager.getInstance().startScreenRecord(MainActivity.mainActivity);

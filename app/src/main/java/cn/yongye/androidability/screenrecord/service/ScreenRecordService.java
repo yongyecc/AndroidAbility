@@ -18,6 +18,8 @@ import android.media.projection.MediaProjectionManager;
 import android.os.Build;
 import android.os.Environment;
 import android.os.IBinder;
+
+import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -26,6 +28,7 @@ import cn.yongye.androidability.R;
 import cn.yongye.androidability.activity.MainActivity;
 import cn.yongye.androidability.common.LogUtil;
 import cn.yongye.androidability.common.ViewUtils;
+import cn.yongye.androidability.screenrecord.MediaMuxerScreenRecordThread;
 import cn.yongye.androidability.screenrecord.ScreenRecordBean;
 import cn.yongye.androidability.screenrecord.ScreenRecordManager;
 
@@ -33,31 +36,16 @@ import cn.yongye.androidability.screenrecord.ScreenRecordManager;
  * 基于MediaRecorder的屏幕录制Service.
  */
 public class ScreenRecordService extends Service {
+    private final String TAG = ScreenRecordService.class.getSimpleName();
     public static final int REQUEST_SCREEN_RECORDER_PERMISSION = 0;
     public static final int REQUEST_SCREEN_RECORDER_CODE = 1;
     private static final int REQUEST_SCREEN_RECORD_NOTIFICATION_CODE = 11;
-    private final String TAG = "ScreenRecordService";
-
-    /**
-     * 是否为标清视频
-     */
-    private boolean isVideoSd = false;
-    private int mScreenWidth = 720;
-    private int mScreenHeight = 960;
     private int mResultCode;
     private Intent mResultData;
     private MediaProjection mMediaProjection;
     private MediaRecorder mMediaRecorder;
     private VirtualDisplay mVirtualDisplay;
-    private int mScreenDensity = 1;
-    //申请权限需要在AndroidMainfest.xml中声明
-    public static String[] screenPermission = new String[]{Manifest.permission.RECORD_AUDIO,
-            Manifest.permission.READ_PHONE_STATE, Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE};
-
-
-    public ScreenRecordService() {
-    }
+    MediaMuxerScreenRecordThread muxerScreenRecordThread;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -75,18 +63,32 @@ public class ScreenRecordService extends Service {
         mResultData = intent.getParcelableExtra("intent");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             createNotificationChannel();
-            mMediaProjection = ((MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE)).getMediaProjection(mResultCode, mResultData);
+            mMediaProjection = ((MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE))
+                    .getMediaProjection(mResultCode, mResultData);
             switch (ScreenRecordBean.SCREEN_RECORD_TYPE) {
                 case ScreenRecordBean.RECORD_TYPE_MEDIARECORD:
+                    //MediaRecoder录屏
                     mMediaRecorder = createMediaRecorder();
-                    mVirtualDisplay = mMediaProjection.createVirtualDisplay(TAG, mScreenWidth, mScreenHeight, mScreenDensity,
-                            DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR, mMediaRecorder.getSurface(), null, null);
+                    mVirtualDisplay = mMediaProjection.createVirtualDisplay(TAG,
+                            ScreenRecordBean.mScreenWidth, ScreenRecordBean.mScreenHeight,
+                            ScreenRecordBean.mScreenDensity, DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
+                            mMediaRecorder.getSurface(), null, null);
                     mMediaRecorder.start();
-                    ScreenRecordBean.RECORD_STATUS = true;
+
+                    break;
+                case ScreenRecordBean.RECORD_TYPE_MEDIAMUXER:
+                    //MediaMuxer+mediacodec录屏
+                    muxerScreenRecordThread = new MediaMuxerScreenRecordThread(ScreenRecordBean.mScreenWidth,
+                            ScreenRecordBean.mScreenHeight, ScreenRecordBean.mScreenWidth *
+                            ScreenRecordBean.mScreenHeight * 6, 1, mMediaProjection,
+                            getApplicationContext().getFilesDir().getAbsolutePath()
+                                    + File.separator + "muxer_record.mp4");
+                    muxerScreenRecordThread.start();
                     break;
                 default:
                     break;
             }
+            ScreenRecordBean.RECORD_STATUS = true;
 
         }
         return Service.START_NOT_STICKY;
@@ -138,20 +140,22 @@ public class ScreenRecordService extends Service {
         Date curDate = new Date(System.currentTimeMillis());
         String curTime = formatter.format(curDate).replace(" ", "");
         String videoQuality = "HD";
-        if (isVideoSd) videoQuality = "SD";
+        if (ScreenRecordBean.isVideoSd) {
+            videoQuality = "SD";
+        }
         LogUtil.i(TAG, "Create MediaRecorder");
         MediaRecorder mediaRecorder = new MediaRecorder();
         mediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
         mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
         mediaRecorder.setOutputFile(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES) + "/" + videoQuality + curTime + ".mp4");
-        mediaRecorder.setVideoSize(mScreenWidth, mScreenHeight);
+        mediaRecorder.setVideoSize(ScreenRecordBean.mScreenWidth, ScreenRecordBean.mScreenHeight);
         mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
-        if (isVideoSd) {
-            mediaRecorder.setVideoEncodingBitRate(mScreenWidth * mScreenHeight);
-            mediaRecorder.setVideoFrameRate(30);
+        if (ScreenRecordBean.isVideoSd) {
+            mediaRecorder.setVideoEncodingBitRate(ScreenRecordBean.mScreenWidth * ScreenRecordBean.mScreenHeight);
+            mediaRecorder.setVideoFrameRate(ScreenRecordBean.FRAME_RATE);
         } else {
-            mediaRecorder.setVideoEncodingBitRate(5 * mScreenWidth * mScreenHeight);
-            mediaRecorder.setVideoFrameRate(60);
+            mediaRecorder.setVideoEncodingBitRate(5 * ScreenRecordBean.mScreenWidth * ScreenRecordBean.mScreenHeight);
+            mediaRecorder.setVideoFrameRate(ScreenRecordBean.FRAME_RATE_60);
         }
         try {
             mediaRecorder.prepare();
@@ -165,12 +169,17 @@ public class ScreenRecordService extends Service {
     public void onDestroy() {
         super.onDestroy();
         LogUtil.i(TAG, "onDestroy");
+        //end MediaMuxer
+        if (muxerScreenRecordThread != null) {
+            muxerScreenRecordThread.quit();
+        }
         if (mVirtualDisplay != null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                 mVirtualDisplay.release();
             }
             mVirtualDisplay = null;
         }
+        // end MediaRecoder
         if (mMediaRecorder != null) {
             mMediaRecorder.setOnErrorListener(null);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
