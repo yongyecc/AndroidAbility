@@ -4,6 +4,8 @@ package cn.yongye.androidability.screenrecord;
 import static com.arthenica.mobileffmpeg.Config.RETURN_CODE_CANCEL;
 import static com.arthenica.mobileffmpeg.Config.RETURN_CODE_SUCCESS;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
@@ -11,14 +13,22 @@ import android.graphics.Rect;
 import android.graphics.YuvImage;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplay;
+import android.media.AudioFormat;
+import android.media.AudioRecord;
 import android.media.ImageReader;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.media.MediaMuxer;
+import android.media.MediaRecorder;
 import android.media.projection.MediaProjection;
+import android.os.Build;
 import android.util.Log;
 import android.view.Surface;
+
+import androidx.annotation.RequiresApi;
+import androidx.core.app.ActivityCompat;
+
 import com.arthenica.mobileffmpeg.Config;
 import com.arthenica.mobileffmpeg.FFmpeg;
 import java.io.BufferedInputStream;
@@ -28,10 +38,14 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import cn.yongye.androidability.activity.MainActivity;
 import cn.yongye.androidability.common.LogUtil;
+import cn.yongye.androidability.common.PermissionUtil;
 import cn.yongye.androidability.common.SimilarPicture;
 
 
@@ -105,8 +119,13 @@ public class MediaMuxerScreenRecordThread extends Thread{
     public void run() {
         try {
             try {
-                prepareEncoder();
                 mMuxer = new MediaMuxer(mDstPath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
+                //音频
+                //initAudioRecord();
+                //initAudioMedicode();
+                //mAudioMediaCodec.start();
+                //视频
+                prepareEncoder();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -126,6 +145,7 @@ public class MediaMuxerScreenRecordThread extends Thread{
      */
     private void recordVirtualDisplay() {
         while (!mQuit.get()) {
+            //视频输出
             int index = mEncoder.dequeueOutputBuffer(mBufferInfo, TIMEOUT_US);
             //   LogUtil.i(TAG, "dequeue output buffer index=" + index);
             if (index == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
@@ -145,6 +165,47 @@ public class MediaMuxerScreenRecordThread extends Thread{
                 }
                 encodeToVideoTrack(index);
                 mEncoder.releaseOutputBuffer(index, false);
+            }
+            if (mAudioMediaCodec != null) {
+                //音频输出
+                //得到 输入缓冲区的索引
+                int audioInputID = mAudioMediaCodec.dequeueInputBuffer(0);
+                //也是大于等于0 代表 可以输入数据啦
+                if (audioInputID >= 0) {
+                    ByteBuffer audioInputBuffer = mAudioMediaCodec.getInputBuffer(audioInputID);
+                    audioInputBuffer.clear();
+                    //从 audiorecord 里面 读取原始的音频数据
+                    int read = mAudiorecord.read(byteBuffer, 0, audioBufferSize);
+                    if (read < audioBufferSize) {
+                        System.out.println(" 读取的数据" + read);
+                    }
+                    //上面read可能小于audioBufferSize  要注意
+                    audioInputBuffer.put(byteBuffer, 0, read);
+                    //入列  注意下面的时间，这个是确定这段数据 时间的 ，视频音频 都是一段段的数据，每个数据都有时间 ，这样播放器才知道 先播放那个数据
+                    // 串联起来 就是连续的了
+                    mAudioMediaCodec.queueInputBuffer(audioInputID, 0, read, System.nanoTime() / 1000L, 0);
+                }
+                //音频输出
+                int audioOutputID = mAudioMediaCodec.dequeueOutputBuffer(audioInfo, 0);
+                Log.d(TAG, "audio flags " + audioInfo.flags);
+                if (audioOutputID >= 0) {
+                    audioInfo.presentationTimeUs = mBufferInfo.presentationTimeUs;//保持 视频和音频的统一，防止 时间画面声音 不同步
+                    if (audioInfo.flags != 2) {
+                        //这里就可以取出数据 进行网络传输
+                        ByteBuffer audioOutBuffer = mAudioMediaCodec.getOutputBuffer(audioOutputID);
+                        audioOutBuffer.limit(audioInfo.offset + audioInfo.size);//这是另一种 和上面的 flip 没区别
+                        audioOutBuffer.position(audioInfo.offset);
+                        mMuxer.writeSampleData(audioIndex, audioOutBuffer, audioInfo);//写入
+                        LogUtil.d(TAG, String.format("Write audio(index=%s) bytes len=%s", audioIndex, audioInfo.size));
+                    }
+                    //释放缓冲区
+                    mAudioMediaCodec.releaseOutputBuffer(audioOutputID, false);
+                } else if (audioOutputID == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
+                    audioFormat = mAudioMediaCodec.getOutputFormat();
+                    audioIndex = mMuxer.addTrack(audioFormat);
+                    //注意 这里  只在start  视频哪里没有这个，这个方法只能调用一次
+                    //mMuxer.start();
+                }
             }
         }
     }
@@ -341,6 +402,18 @@ public class MediaMuxerScreenRecordThread extends Thread{
             mEncoder.release();
             mEncoder = null;
         }
+        //音频
+        if (mAudioMediaCodec != null) {
+            mAudioMediaCodec.stop();
+            mAudioMediaCodec.release();
+            mAudioMediaCodec = null;
+        }
+        if (mAudiorecord != null) {
+            mAudiorecord.stop();
+            mAudiorecord.release();
+            mAudiorecord = null;
+        }
+
         if (mVirtualDisplay != null) {
             mVirtualDisplay.release();
         }
@@ -352,5 +425,71 @@ public class MediaMuxerScreenRecordThread extends Thread{
             mMuxer.release();
             mMuxer = null;
         }
+    }
+
+
+    private AudioRecord mAudiorecord;//录音类
+    // 音频源：音频输入-麦克风  我使用其他格式 就会报错
+    private final static int AUDIO_SOURCE = MediaRecorder.AudioSource.MIC;
+    // 采样率
+    // 44100是目前的标准，但是某些设备仍然支持22050，16000，11025
+    // 采样频率一般共分为22.05KHz、44.1KHz、48KHz三个等级
+    private final static int AUDIO_SAMPLE_RATE = 44100;
+    // 音频通道 默认的 可以是单声道 立体声道
+    private final int AUDIO_CHANNEL = AudioFormat.CHANNEL_IN_DEFAULT;
+    // 音频格式：PCM编码   返回音频数据的格式
+    private final int AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
+    //记录期间写入音频数据的缓冲区的总大小(以字节为单位)。
+    private int audioBufferSize = 0;
+    //缓冲数组 ，用来读取audioRecord的音频数据
+    private byte[] byteBuffer;
+    private int audioIndex;//通过MediaMuxer 向本地文件写入数据时候，这个标志是用来确定信道的
+    private MediaCodec mAudioMediaCodec;//音频编码器
+    private MediaFormat audioFormat;//音频编码器 输出数据的格式
+    //这个是每次在编码器 取数据的时候，这个info 携带取出数据的信息，例如 时间，大小 类型之类的  关键帧 可以通过这里的flags辨别
+    private MediaCodec.BufferInfo audioInfo = new MediaCodec.BufferInfo();
+
+    public void setRun(boolean run) {
+        isRun = run;
+    }
+
+    public volatile boolean isRun = true;//用于控制 是否录制，这个无关紧要
+
+    //录音相关
+    //实例化 AUDIO 的编码器
+    void initAudioMedicode() throws IOException {
+        audioFormat = MediaFormat.createAudioFormat(MediaFormat.MIMETYPE_AUDIO_AAC, AUDIO_SAMPLE_RATE, AUDIO_CHANNEL);
+        audioFormat.setInteger(MediaFormat.KEY_BIT_RATE, 96000);//比特率
+        //描述要使用的AAC配置文件的键(仅适用于AAC音频格式)。
+        audioFormat.setInteger(MediaFormat.KEY_AAC_PROFILE, MediaCodecInfo.CodecProfileLevel.AACObjectLC);
+        audioFormat.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, audioBufferSize << 1);//最大输入
+
+        //这里注意  如果 你不确定 你要生成的编码器类型，就通过下面的 通过类型生成编码器
+        mAudioMediaCodec = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_AUDIO_AAC);
+        //配置
+        mAudioMediaCodec.configure(audioFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
+    }
+
+    //录音的类，用于给音频编码器 提供原始数据
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    void initAudioRecord() {
+        //得到 音频录制时候 最小的缓冲区大小
+        audioBufferSize = AudioRecord.getMinBufferSize(AUDIO_SAMPLE_RATE, AUDIO_CHANNEL, AUDIO_ENCODING);
+        byteBuffer = new byte[audioBufferSize];
+
+        if (!PermissionUtil.checkPermission(MainActivity.mainActivity, Manifest.permission.RECORD_AUDIO)) {
+            return;
+        }
+        mAudiorecord = new AudioRecord.Builder()
+                .setAudioSource(AUDIO_SOURCE)
+                .setAudioFormat(new AudioFormat.Builder()
+                        .setEncoding(AUDIO_ENCODING)
+                        .setSampleRate(AUDIO_SAMPLE_RATE)
+                        .setChannelMask(AUDIO_CHANNEL)
+                        .build())
+                .setBufferSizeInBytes(audioBufferSize)
+                .build();
+        //开始录制，这里可以检查一下状态，但只要代码无误，检查是无需的 state
+        mAudiorecord.startRecording();
     }
 }
