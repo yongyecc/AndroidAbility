@@ -17,7 +17,7 @@ public class ViewUtils {
     public static String getStringById(Context context, int resourceId) {
         String resValue = null;
         try {
-            context.getResources().getString(resourceId);
+            resValue = context.getResources().getString(resourceId);
         } catch (Exception exception) {
             exception.printStackTrace();
             LogUtil.e(TAG, String.format("[Error][getStringById] context=%s resourceid=%s",

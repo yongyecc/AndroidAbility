@@ -1,32 +1,35 @@
 package cn.yongye.androidability.activity;
 
+import static cn.yongye.androidability.screenrecord.service.ScreenRecordService.REQUEST_SCREEN_RECORDER_CODE;
+import static cn.yongye.androidability.screenrecord.service.ScreenRecordService.REQUEST_SCREEN_RECORDER_PERMISSION;
+
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.SimpleItemAnimator;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
-import android.widget.LinearLayout;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.LinkedHashMap;
 
 import cn.yongye.androidability.R;
 import cn.yongye.androidability.adapter.DemoListAdapter;
 import cn.yongye.androidability.common.ViewUtils;
+import cn.yongye.androidability.screenrecord.service.ScreenRecordService;
 
 public class MainActivity extends AppCompatActivity {
 
     RecyclerView demoListRecyclerView;
     DemoListAdapter demoListAdapter;
-    HashMap<Integer, String> listData;
+    LinkedHashMap<Integer, String> listData;
+    public static Activity mainActivity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mainActivity = this;
 
         initListData();
         initView();
@@ -37,9 +40,12 @@ public class MainActivity extends AppCompatActivity {
      */
     private void initListData() {
         if (listData == null) {
-            listData = new HashMap<>();
+            listData = new LinkedHashMap<>();
         }
-        listData.put(0, "testItem");
+        listData.put(R.string.screen_record_mediarecoder,
+                ViewUtils.getStringById(this, R.string.screen_record_mediarecoder));
+        listData.put(R.string.screen_record_mediamuxer,
+                ViewUtils.getStringById(this, R.string.screen_record_mediamuxer));
     }
 
     /**
@@ -53,5 +59,21 @@ public class MainActivity extends AppCompatActivity {
         demoListRecyclerView.setAdapter(demoListAdapter);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            switch (requestCode) {
+                case REQUEST_SCREEN_RECORDER_CODE:
+                    Intent screenRecordIntent = new Intent(this, ScreenRecordService.class);
+                    screenRecordIntent.putExtra("intent", data);
+                    screenRecordIntent.putExtra("resultCode", resultCode);
+                    startService(screenRecordIntent);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
 
 }

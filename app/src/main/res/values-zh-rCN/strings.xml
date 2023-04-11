@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Android功能集</string>
+    <string name="recording">屏幕录制中</string>
     
     <!-- Demo列表-->
     <string name="screen_record_mediarecoder">屏幕录像(MediaRecoder)</string>
