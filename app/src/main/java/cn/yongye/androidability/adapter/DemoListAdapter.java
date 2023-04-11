@@ -74,9 +74,14 @@ public class DemoListAdapter extends RecyclerView.Adapter<DemoListAdapter.ViewHo
                      return;
                  }
                  //MediaRecorder录屏.
-                 if (demo_name.equals(ViewUtils.getStringById(v.getContext(),
-                         R.string.screen_record_mediarecoder))) {
-                     ScreenRecordBean.SCREEN_RECORD_TYPE = ScreenRecordBean.RECORD_TYPE_MEDIARECORD;
+                 if (demo_name.equals(ViewUtils.getStringById(v.getContext(), R.string.screen_record_mediarecoder))
+                         || demo_name.equals(ViewUtils.getStringById(v.getContext(), R.string.screen_record_mediamuxer))) {
+                     if (demo_name.equals(ViewUtils.getStringById(v.getContext(),
+                             R.string.screen_record_mediamuxer))) {
+                         ScreenRecordBean.SCREEN_RECORD_TYPE = ScreenRecordBean.RECORD_TYPE_MEDIAMUXER;
+                     } else {
+                         ScreenRecordBean.SCREEN_RECORD_TYPE = ScreenRecordBean.RECORD_TYPE_MEDIARECORD;
+                     }
                      //检查权限并申请屏幕共享权限
                      PermissionUtil.checkAndRequestMorePermissions(MainActivity.mainActivity,
                              ScreenRecordBean.screenPermission, REQUEST_SCREEN_RECORDER_PERMISSION);
@@ -86,18 +91,7 @@ public class DemoListAdapter extends RecyclerView.Adapter<DemoListAdapter.ViewHo
                      } else {
                          ScreenRecordManager.getInstance().stopScreenRecord(MainActivity.mainActivity);
                      }
-                 } else if (demo_name.equals(ViewUtils.getStringById(v.getContext(),
-                         R.string.screen_record_mediamuxer))) {
-                     ScreenRecordBean.SCREEN_RECORD_TYPE = ScreenRecordBean.RECORD_TYPE_MEDIAMUXER;
-                     //开启屏幕录制(MediaRecorder)
-                     if (!ScreenRecordBean.RECORD_STATUS) {
-                         ScreenRecordManager.getInstance().startScreenRecord(MainActivity.mainActivity);
-                     } else {
-                         ScreenRecordManager.getInstance().stopScreenRecord(MainActivity.mainActivity);
-                     }
-
                  }
-
             }
         });
     }
