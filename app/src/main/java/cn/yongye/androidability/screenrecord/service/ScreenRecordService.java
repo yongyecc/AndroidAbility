@@ -76,11 +76,18 @@ public class ScreenRecordService extends Service {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             createNotificationChannel();
             mMediaProjection = ((MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE)).getMediaProjection(mResultCode, mResultData);
-            mMediaRecorder = createMediaRecorder();
-            mVirtualDisplay = mMediaProjection.createVirtualDisplay(TAG, mScreenWidth, mScreenHeight, mScreenDensity,
-                    DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR, mMediaRecorder.getSurface(), null, null);
-            mMediaRecorder.start();
-            ScreenRecordBean.RECORD_STATUS = true;
+            switch (ScreenRecordBean.SCREEN_RECORD_TYPE) {
+                case ScreenRecordBean.RECORD_TYPE_MEDIARECORD:
+                    mMediaRecorder = createMediaRecorder();
+                    mVirtualDisplay = mMediaProjection.createVirtualDisplay(TAG, mScreenWidth, mScreenHeight, mScreenDensity,
+                            DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR, mMediaRecorder.getSurface(), null, null);
+                    mMediaRecorder.start();
+                    ScreenRecordBean.RECORD_STATUS = true;
+                    break;
+                default:
+                    break;
+            }
+
         }
         return Service.START_NOT_STICKY;
     }
