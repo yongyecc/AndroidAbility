@@ -7,9 +7,6 @@ import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
-import android.graphics.Bitmap;
-import android.graphics.Bitmap.Config;
-import android.graphics.Matrix;
 import android.graphics.Path;
 import android.graphics.PorterDuff;
 
@@ -17,25 +14,24 @@ import androidx.annotation.Nullable;
 
 
 /**
- * 自由绘制画板的自定义View.
+ * 手动涂鸦的画板View.
  */
-public class PaintView extends View {
+public class ManualPaintView extends View {
 
 
     private Paint mPaint;
     private Path mPath;
-    private Bitmap mBitmap;
     private Canvas mCanvas;
     private float currentX, currentY;
 
 
-    public PaintView(Context context) {
+    public ManualPaintView(Context context) {
         super(context);
         init();
     }
 
-    //bugfix: Caused by: java.lang.NoSuchMethodException: cn.yongye.androidability.dooddle.view.PaintView.<init> [class android.content.Context, interface android.util.AttributeSet]
-    public PaintView(Context context, @Nullable AttributeSet attrs) {
+    //bugfix: Caused by: java.lang.NoSuchMethodException: cn.yongye.androidability.dooddle.view.ManualPaintView.<init> [class android.content.Context, interface android.util.AttributeSet]
+    public ManualPaintView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         init();
     }
@@ -50,7 +46,7 @@ public class PaintView extends View {
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setColor(Color.BLACK);
         mPath = new Path();
-        mCanvas = new Canvas(mBitmap);
+        mCanvas = new Canvas();
     }
 
     @Override
