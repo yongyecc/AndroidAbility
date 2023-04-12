@@ -34,6 +34,9 @@
         <service android:name=".screenrecord.service.ScreenRecordService"
             android:enabled="true"
             android:foregroundServiceType="mediaProjection"/>
+
+        <!-- Path涂鸦-->
+        <activity android:name=".dooddle.activity.PathActivity"/>
     </application>
 
 </manifest>

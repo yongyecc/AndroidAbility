@@ -2,6 +2,7 @@ package cn.yongye.androidability.adapter;
 
 import static cn.yongye.androidability.screenrecord.service.ScreenRecordService.REQUEST_SCREEN_RECORDER_PERMISSION;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import cn.yongye.androidability.R;
 import cn.yongye.androidability.activity.MainActivity;
+import cn.yongye.androidability.dooddle.activity.PathActivity;
 import cn.yongye.androidability.common.LogUtil;
 import cn.yongye.androidability.common.PermissionUtil;
 import cn.yongye.androidability.common.ViewUtils;
@@ -91,6 +93,8 @@ public class DemoListAdapter extends RecyclerView.Adapter<DemoListAdapter.ViewHo
                      } else {
                          ScreenRecordManager.getInstance().stopScreenRecord(MainActivity.mainActivity);
                      }
+                 } else if (demo_name.equals(ViewUtils.getStringById(v.getContext(), R.string.doodle_by_path))) {
+                     v.getContext().startActivity(new Intent(v.getContext(), PathActivity.class));
                  }
             }
         });

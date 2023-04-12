@@ -5,4 +5,5 @@
     <!-- Demo列表-->
     <string name="screen_record_mediarecoder">Screen Recording(MediaRecoder)</string>
     <string name="screen_record_mediamuxer">Screen Recording(MediaMuxer)</string>
+    <string name="doodle_by_path">Doodle By Path</string>
 </resources>
