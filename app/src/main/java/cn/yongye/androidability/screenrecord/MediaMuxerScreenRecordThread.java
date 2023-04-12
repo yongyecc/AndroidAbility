@@ -121,9 +121,9 @@ public class MediaMuxerScreenRecordThread extends Thread{
             try {
                 mMuxer = new MediaMuxer(mDstPath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
                 //音频
-                //initAudioRecord();
-                //initAudioMedicode();
-                //mAudioMediaCodec.start();
+                initAudioRecord();
+                initAudioMedicode();
+                mAudioMediaCodec.start();
                 //视频
                 prepareEncoder();
             } catch (IOException e) {
@@ -189,7 +189,7 @@ public class MediaMuxerScreenRecordThread extends Thread{
                 int audioOutputID = mAudioMediaCodec.dequeueOutputBuffer(audioInfo, 0);
                 Log.d(TAG, "audio flags " + audioInfo.flags);
                 if (audioOutputID >= 0) {
-                    audioInfo.presentationTimeUs = mBufferInfo.presentationTimeUs;//保持 视频和音频的统一，防止 时间画面声音 不同步
+                    audioInfo.presentationTimeUs += 1000 * 1000 / ScreenRecordBean.FRAME_RATE;//保持 视频和音频的统一，防止 时间画面声音 不同步
                     if (audioInfo.flags != 2) {
                         //这里就可以取出数据 进行网络传输
                         ByteBuffer audioOutBuffer = mAudioMediaCodec.getOutputBuffer(audioOutputID);
@@ -233,6 +233,7 @@ public class MediaMuxerScreenRecordThread extends Thread{
             encodedData = null;
         }
         if (encodedData != null) {
+            mBufferInfo.presentationTimeUs += 1000 * 1000 / ScreenRecordBean.FRAME_RATE;
             mMuxer.writeSampleData(mVideoTrackIndex, encodedData, mBufferInfo);
         }
     }
