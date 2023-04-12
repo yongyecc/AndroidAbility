@@ -6,6 +6,7 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 
 import cn.yongye.androidability.R;
+import cn.yongye.androidability.dooddle.view.PaintView;
 
 public class PathActivity extends Activity {
 
@@ -13,5 +14,7 @@ public class PathActivity extends Activity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_path);
+        findViewById(R.id.paint_view);
+
     }
 }
