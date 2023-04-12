@@ -284,86 +284,87 @@ public class MediaMuxerScreenRecordThread extends Thread{
 
     public void onImageData(byte[] buf, String h264Path) {
         try {
-            FileOutputStream os = new FileOutputStream(h264Path);
-            LogUtil.i(TAG, "onImageData  " + buf.length + "  ------  " + os);
-            if (null != os) {
-                try {
-                    //在字节数组前添加整个帧数据长度
-                    byte[] bytes = new byte[buf.length + 3];
-                    byte[] head = intToBuffer(buf.length);
-                    System.arraycopy(head, 0, bytes, 0, head.length);
-                    System.arraycopy(buf, 0, bytes, head.length, buf.length);
-                    os.write(bytes);
-                    os.flush();
-                    bytes = null;
-                    head = null;
-                } catch (IOException e) {
-                    e.printStackTrace();
+            //5s一次差异化比较
+            if (System.currentTimeMillis() - lastTime >= 5000) {
+                FileOutputStream os = new FileOutputStream(h264Path);
+                LogUtil.i(TAG, "onImageData  " + buf.length + "  ------  " + os);
+                if (null != os) {
+                    try {
+                        //在字节数组前添加整个帧数据长度
+                        byte[] bytes = new byte[buf.length + 3];
+                        byte[] head = intToBuffer(buf.length);
+                        System.arraycopy(head, 0, bytes, 0, head.length);
+                        System.arraycopy(buf, 0, bytes, head.length, buf.length);
+                        os.write(bytes);
+                        os.flush();
+                        bytes = null;
+                        head = null;
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
-            }
 
-            //截图相似度比较
-            //H264->yuv420p
-            //bugfix 使用mobile-ffmpeg库执行有关文件转化等会产生新文件任务是需要删除已存在文件，否则命令会被迫终止。
-            new File(YUV420PFrameFilePath).delete();
-            int rc = -1;
-            rc = FFmpeg.execute(String.format("-i %s -c:v rawvideo -pix_fmt yuv420p %s",
-                    H264FramFilePath, YUV420PFrameFilePath));
-            if (rc == RETURN_CODE_SUCCESS) {
-                LogUtil.d(TAG, "H264->YUV420P SUCCESSFUL.");
-            } else if (rc == RETURN_CODE_CANCEL) {
-                LogUtil.i(TAG, "Command execution cancelled by user.");
-            } else {
-                LogUtil.i(TAG, String.format("Command execution failed with rc=%d and the output below.", rc));
-                Config.printLastCommandOutput(Log.INFO);
-                return;
-            }
-            //yuv420p->NV21
-            new File(NV21FrameFilePath).delete();
-            String cmdYUV2NV21 = String.format("-s %sx%s -pix_fmt yuv420p -i %s -pix_fmt nv21 %s",
-                    mWidth, mHeight, YUV420PFrameFilePath, NV21FrameFilePath);
-            rc = FFmpeg.execute(cmdYUV2NV21);
-            if (rc == RETURN_CODE_SUCCESS) {
-                LogUtil.d(TAG, "YUV420P->YUV21 SUCCESSFUL.");
-            } else if (rc == RETURN_CODE_CANCEL) {
-                LogUtil.i(TAG, "Command execution cancelled by user.");
-            } else {
-                LogUtil.i(TAG, String.format("Command execution failed with rc=%d and the output below.", rc));
-                Config.printLastCommandOutput(Log.INFO);
-            }
-            //NV21->Bitmap
-            File f = new File(NV21FrameFilePath);
-            if (f.length() == 0) {
-                return;
-            }
-            ByteArrayOutputStream bos = new ByteArrayOutputStream((int) f.length());
-            BufferedInputStream in = null;
-
-            in = new BufferedInputStream(new FileInputStream(f));
-            int buf_size = 1024;
-            byte[] buffer = new byte[buf_size];
-            int len = 0;
-            while (-1 != (len = in.read(buffer, 0, buf_size))) {
-                bos.write(buffer, 0, len);
-            }
-            byte[] nv21Bytes = bos.toByteArray();
-            YuvImage image = new YuvImage(nv21Bytes, ImageFormat.NV21, mWidth, mHeight, null);
-            if(image!=null){
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                image.compressToJpeg(new Rect(0, 0, mWidth, mHeight), 80, stream);
-                Bitmap bmp = BitmapFactory.decodeByteArray(stream.toByteArray(), 0, stream.size());
-                stream.close();
-                if(oldBitmap == null) {
-                    oldBitmap = bmp;
-                    LogUtil.i(TAG, "Init 5 second before bitmap");
+                //截图相似度比较
+                //H264->yuv420p
+                //bugfix 使用mobile-ffmpeg库执行有关文件转化等会产生新文件任务是需要删除已存在文件，否则命令会被迫终止。
+                new File(YUV420PFrameFilePath).delete();
+                int rc = -1;
+                rc = FFmpeg.execute(String.format("-i %s -c:v rawvideo -pix_fmt yuv420p %s",
+                        H264FramFilePath, YUV420PFrameFilePath));
+                if (rc == RETURN_CODE_SUCCESS) {
+                    LogUtil.d(TAG, "H264->YUV420P SUCCESSFUL.");
+                } else if (rc == RETURN_CODE_CANCEL) {
+                    LogUtil.i(TAG, "Command execution cancelled by user.");
+                } else {
+                    LogUtil.i(TAG, String.format("Command execution failed with rc=%d and the output below.", rc));
+                    Config.printLastCommandOutput(Log.INFO);
                     return;
                 }
-                //5s一次差异化比较
-                if (System.currentTimeMillis() - lastTime >= 5000) {
+                //yuv420p->NV21
+                new File(NV21FrameFilePath).delete();
+                String cmdYUV2NV21 = String.format("-s %sx%s -pix_fmt yuv420p -i %s -pix_fmt nv21 %s",
+                        mWidth, mHeight, YUV420PFrameFilePath, NV21FrameFilePath);
+                rc = FFmpeg.execute(cmdYUV2NV21);
+                if (rc == RETURN_CODE_SUCCESS) {
+                    LogUtil.d(TAG, "YUV420P->YUV21 SUCCESSFUL.");
+                } else if (rc == RETURN_CODE_CANCEL) {
+                    LogUtil.i(TAG, "Command execution cancelled by user.");
+                } else {
+                    LogUtil.i(TAG, String.format("Command execution failed with rc=%d and the output below.", rc));
+                    Config.printLastCommandOutput(Log.INFO);
+                }
+                //NV21->Bitmap
+                File f = new File(NV21FrameFilePath);
+                if (f.length() == 0) {
+                    return;
+                }
+                ByteArrayOutputStream bos = new ByteArrayOutputStream((int) f.length());
+                BufferedInputStream in = null;
+
+                in = new BufferedInputStream(new FileInputStream(f));
+                int buf_size = 1024;
+                byte[] buffer = new byte[buf_size];
+                int len = 0;
+                while (-1 != (len = in.read(buffer, 0, buf_size))) {
+                    bos.write(buffer, 0, len);
+                }
+                byte[] nv21Bytes = bos.toByteArray();
+                YuvImage image = new YuvImage(nv21Bytes, ImageFormat.NV21, mWidth, mHeight, null);
+                if (image != null) {
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    image.compressToJpeg(new Rect(0, 0, mWidth, mHeight), 80, stream);
+                    Bitmap bmp = BitmapFactory.decodeByteArray(stream.toByteArray(), 0, stream.size());
+                    stream.close();
+                    if (oldBitmap == null) {
+                        oldBitmap = bmp;
+                        LogUtil.i(TAG, "Init 5 second before bitmap");
+                        return;
+                    }
+
                     lastTime = System.currentTimeMillis();
                     int diffNumber = SimilarPicture.diff(bmp, oldBitmap);
                     oldBitmap = bmp;
-                    LogUtil.d(TAG, "Diff=" + diffNumber);
+                    LogUtil.d(TAG, "diff=" + diffNumber);
                 }
             }
         } catch (Exception exception) {
