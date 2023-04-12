@@ -11,13 +11,16 @@ import cn.yongye.androidability.dooddle.view.AutoPaintView;
 
 public class PathActivity extends Activity {
 
+    public static AutoPaintView autoPaintView;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_path);
         findViewById(R.id.paint_view);
 
-        AutoPaintView autoPaintView = findViewById(R.id.auto_paint);
+        autoPaintView = findViewById(R.id.auto_paint);
+
         //绘制第一个线条
         Path path = new Path();
         path.lineTo(100,100);

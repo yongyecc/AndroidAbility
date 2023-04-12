@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.Message;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -11,6 +12,8 @@ import android.graphics.Path;
 import android.graphics.PorterDuff;
 
 import androidx.annotation.Nullable;
+
+import cn.yongye.androidability.dooddle.activity.PathActivity;
 
 
 /**
@@ -67,7 +70,11 @@ public class ManualPaintView extends View {
             case MotionEvent.ACTION_MOVE:
                 currentX = x;
                 currentY = y;
-                mPath.quadTo(currentX, currentY, x, y); // 画线
+                mPath.lineTo(currentX, currentY);
+                //mPath.quadTo(currentX, currentY, x, y); // 画线
+                //在手动绘制画板绘制时，同步更新绘制内容到自动绘制画板上.
+                PathActivity.autoPaintView.drawLine(mPath);
+                PathActivity.autoPaintView.invalidate(); //更新UI界面
                 break;
             case MotionEvent.ACTION_UP:
                 mCanvas.drawPath(mPath, mPaint);
