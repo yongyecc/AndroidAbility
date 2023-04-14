@@ -7,11 +7,13 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 
 import cn.yongye.androidability.R;
+import cn.yongye.androidability.dooddle.view.AutoMoveRect;
 import cn.yongye.androidability.dooddle.view.AutoPaintView;
 
 public class PathActivity extends Activity {
 
     public static AutoPaintView autoPaintView;
+    public static AutoMoveRect autoMoveRect;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -28,5 +30,8 @@ public class PathActivity extends Activity {
         path.lineTo(150, 250);
         path.addPath(path, 100, 0); //将第一个线条在X轴横移100，绘制出第二个线条
         autoPaintView.drawLine(path);
+
+        //随绘制移动的View
+        autoMoveRect = findViewById(R.id.auto_move_view);
     }
 }

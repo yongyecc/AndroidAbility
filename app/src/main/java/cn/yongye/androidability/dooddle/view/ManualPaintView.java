@@ -10,9 +10,12 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.graphics.Path;
 import android.graphics.PorterDuff;
+import android.view.WindowManager;
+import android.widget.RelativeLayout;
 
 import androidx.annotation.Nullable;
 
+import cn.yongye.androidability.common.LogUtil;
 import cn.yongye.androidability.dooddle.activity.PathActivity;
 
 
@@ -21,7 +24,7 @@ import cn.yongye.androidability.dooddle.activity.PathActivity;
  */
 public class ManualPaintView extends View {
 
-
+    private static final String TAG = ManualPaintView.class.getSimpleName();
     private Paint mPaint;
     private Path mPath;
     private Canvas mCanvas;
@@ -61,6 +64,7 @@ public class ManualPaintView extends View {
     public boolean onTouchEvent(MotionEvent event) {
         float x = event.getX();
         float y = event.getY();
+        LogUtil.i(TAG, String.format("x=%s y=%s", x, y));
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 currentX = x;
@@ -75,6 +79,15 @@ public class ManualPaintView extends View {
                 //在手动绘制画板绘制时，同步更新绘制内容到自动绘制画板上.
                 PathActivity.autoPaintView.drawLine(mPath);
                 PathActivity.autoPaintView.invalidate(); //更新UI界面
+                //动态修改View布局
+                RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) PathActivity.autoMoveRect.getLayoutParams();
+                //X、Y坐标
+                layoutParams.leftMargin = (int) currentX - 100;
+                layoutParams.topMargin = (int)currentY - 100;
+                //焦点图形宽度、高度
+                layoutParams.width = 200;
+                layoutParams.height= 200;
+                PathActivity.autoMoveRect.setLayoutParams(layoutParams);
                 break;
             case MotionEvent.ACTION_UP:
                 mCanvas.drawPath(mPath, mPaint);
