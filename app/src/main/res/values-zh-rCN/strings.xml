@@ -8,4 +8,7 @@
     <string name="screen_record_mediamuxer">屏幕录像(MediaMuxer)</string>
     <string name="doodle_by_path">Path自由涂鸦</string>
     <string name="task_activity">Activity栈</string>
+
+    <!-- Activity栈-->
+    <string name="new_task_activity">New task and add activity</string>
 </resources>

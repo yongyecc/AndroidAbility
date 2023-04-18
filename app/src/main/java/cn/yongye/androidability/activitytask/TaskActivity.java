@@ -1,7 +1,9 @@
 package cn.yongye.androidability.activitytask;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 
 import androidx.annotation.Nullable;
 
@@ -16,5 +18,10 @@ public class TaskActivity extends Activity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task);
+    }
+
+
+    public void startNewTask(View view) {
+        startActivity(new Intent(this, SingleInstanceActivity.class));
     }
 }
