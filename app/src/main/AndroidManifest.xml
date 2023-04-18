@@ -43,7 +43,8 @@
         <activity android:name=".activitytask.TaskActivity" />
         <!-- 新增一个task，并加入SingleInstanceActivity-->
         <activity android:name=".activitytask.SingleInstanceActivity"
-            android:launchMode="singleInstance"/>
+            android:launchMode="singleInstance"
+            android:excludeFromRecents="true"/> <!-- 最近的后台任务隐藏该task-->
     </application>
 
 </manifest>
