@@ -49,6 +49,8 @@ public class MainActivity extends AppCompatActivity {
                 ViewUtils.getStringById(this, R.string.screen_record_mediamuxer));
         listData.put(R.string.doodle_by_path,
                 ViewUtils.getStringById(this, R.string.doodle_by_path));
+        listData.put(R.string.task_activity,
+                ViewUtils.getStringById(this, R.string.task_activity));
     }
 
     /**

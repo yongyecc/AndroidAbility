@@ -16,6 +16,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import cn.yongye.androidability.R;
 import cn.yongye.androidability.activity.MainActivity;
+import cn.yongye.androidability.activitytask.TaskActivity;
 import cn.yongye.androidability.dooddle.activity.PathActivity;
 import cn.yongye.androidability.common.LogUtil;
 import cn.yongye.androidability.common.PermissionUtil;
@@ -95,6 +96,8 @@ public class DemoListAdapter extends RecyclerView.Adapter<DemoListAdapter.ViewHo
                      }
                  } else if (demo_name.equals(ViewUtils.getStringById(v.getContext(), R.string.doodle_by_path))) {
                      v.getContext().startActivity(new Intent(v.getContext(), PathActivity.class));
+                 } else if (demo_name.equals(ViewUtils.getStringById(v.getContext(), R.string.task_activity))) {
+                     v.getContext().startActivity(new Intent(v.getContext(), TaskActivity.class));
                  }
             }
         });

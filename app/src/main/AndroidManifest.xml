@@ -22,6 +22,7 @@
         tools:targetApi="31">
         <activity
             android:name=".activity.MainActivity"
+            android:taskAffinity=""
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -37,6 +38,9 @@
 
         <!-- Path涂鸦-->
         <activity android:name=".dooddle.activity.PathActivity"/>
+
+        <!-- 同一个task里新增的activity-->
+        <activity android:name=".activitytask.TaskActivity" />
     </application>
 
 </manifest>
