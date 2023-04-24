@@ -17,6 +17,7 @@ import java.util.LinkedHashMap;
 import cn.yongye.androidability.R;
 import cn.yongye.androidability.adapter.DemoListAdapter;
 import cn.yongye.androidability.common.ViewUtils;
+import cn.yongye.androidability.hook.HookManager;
 import cn.yongye.androidability.screenrecord.service.ScreenRecordService;
 
 public class MainActivity extends AppCompatActivity {
@@ -34,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
 
         initListData();
         initView();
+        HookManager.getInstance().hookMediaCodec(this);
     }
 
     /**

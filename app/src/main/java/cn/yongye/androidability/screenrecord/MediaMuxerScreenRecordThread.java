@@ -190,7 +190,7 @@ public class MediaMuxerScreenRecordThread extends Thread{
                 Log.d(TAG, "audio flags " + audioInfo.flags);
                 if (audioOutputID >= 0) {
                     audioInfo.presentationTimeUs += 1000 * 1000 / ScreenRecordBean.FRAME_RATE;//保持 视频和音频的统一，防止 时间画面声音 不同步
-                    if (audioInfo.flags != 2) {
+                    if (audioInfo.flags != 2 && mMuxerStarted) {
                         //这里就可以取出数据 进行网络传输
                         ByteBuffer audioOutBuffer = mAudioMediaCodec.getOutputBuffer(audioOutputID);
                         audioOutBuffer.limit(audioInfo.offset + audioInfo.size);//这是另一种 和上面的 flip 没区别

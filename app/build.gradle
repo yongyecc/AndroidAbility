@@ -38,4 +38,7 @@ dependencies {
 
     //ffmpeg库
     implementation 'com.arthenica:mobile-ffmpeg-full:4.4'
+
+    //hook
+    implementation project(":library")
 }
