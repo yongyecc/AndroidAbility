@@ -10,8 +10,11 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        jcenter()
+        maven { url "https://jitpack.io" }
     }
 }
 rootProject.name = "AndroidAbility"
 include ':app'
 include ':handler'
+include ':library'
