@@ -9,6 +9,7 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.CAMERA"/>
 
     <application
         android:allowBackup="true"
@@ -45,6 +46,9 @@
         <activity android:name=".activitytask.SingleInstanceActivity"
             android:launchMode="singleInstance"
             android:excludeFromRecents="true"/> <!-- 最近的后台任务隐藏该task-->
+
+        <!-- Camera预览页面-->
+        <activity android:name=".camera.activity.CameraPreviewActivity"/>
     </application>
 
 </manifest>

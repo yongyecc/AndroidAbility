@@ -12,6 +12,8 @@ import java.util.List;
 
 public class PermissionUtil {
 
+    public final static int CODE_REQUEST_CAMERA_PERMISSION = 1;
+
     /**
      * 检测并请求多个权限 .
      *

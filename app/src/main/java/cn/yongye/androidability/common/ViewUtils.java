@@ -1,6 +1,8 @@
 package cn.yongye.androidability.common;
 
 import android.content.Context;
+import android.view.Gravity;
+import android.widget.Toast;
 
 public class ViewUtils {
 
@@ -24,5 +26,16 @@ public class ViewUtils {
                     context, resourceId));
         }
         return resValue;
+    }
+
+    /**
+     * 新增Toast展示.
+     * @param context   .
+     * @param text  .
+     */
+    public static void showToast(Context context, String text) {
+        Toast toast = Toast.makeText(context, text, Toast.LENGTH_LONG);
+        toast.setGravity(Gravity.CENTER, 0, 0);
+        toast.show();
     }
 }

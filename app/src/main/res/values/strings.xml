@@ -7,7 +7,14 @@
     <string name="screen_record_mediamuxer">Screen Recording(MediaMuxer)</string>
     <string name="doodle_by_path">Doodle By Path</string>
     <string name="task_activity">Activity Task</string>
+    <string name="camera_preview_and_hook">Camera Preview and Hook preview data to play.</string>
+    <string name="start_preview">Start Preview</string>
+    <string name="stop_preview">Stop Preview</string>
+    <string name="switch_camera">Switch Camera</string>
 
     <!-- Activity栈-->
     <string name="new_task_activity">新增Task，加入Activity</string>
+
+    <!-- CAMERA-->
+    <string name="start_preview_tip">Please start the preview first</string>
 </resources>

@@ -53,6 +53,9 @@ public class MainActivity extends AppCompatActivity {
                 ViewUtils.getStringById(this, R.string.doodle_by_path));
         listData.put(R.string.task_activity,
                 ViewUtils.getStringById(this, R.string.task_activity));
+        //Camera预览+Hook播放
+        listData.put(R.string.camera_preview_and_hook,
+                ViewUtils.getStringById(this, R.string.camera_preview_and_hook));
     }
 
     /**
