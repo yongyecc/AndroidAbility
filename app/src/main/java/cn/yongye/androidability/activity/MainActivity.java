@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
 
         initListData();
         initView();
-        HookManager.getInstance().hookMediaCodec(this);
+        HookManager.getInstance().hookCameraPreview(this);
     }
 
     /**

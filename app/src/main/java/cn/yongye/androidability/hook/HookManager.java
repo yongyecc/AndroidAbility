@@ -1,10 +1,12 @@
 package cn.yongye.androidability.hook;
 
 import android.content.Context;
-import android.media.MediaCodec;
+import android.hardware.Camera;
 
-import java.nio.ByteBuffer;
-
+import cn.yongye.androidability.common.LogUtil;
+import cn.yongye.androidability.hook.preview.EncoderManager;
+import cn.yongye.androidability.hook.preview.MediaMuxerManager;
+import cn.yongye.androidability.hook.preview.HookPreviewManager;
 import de.robv.android.xposed.DexposedBridge;
 import de.robv.android.xposed.XC_MethodHook;
 
@@ -14,6 +16,7 @@ import de.robv.android.xposed.XC_MethodHook;
  */
 public class HookManager {
 
+    private static final String TAG = HookManager.class.getSimpleName();
     private static HookManager hookManager;
 
     //单例.
@@ -25,33 +28,73 @@ public class HookManager {
     }
 
     /**
-     * hook 视频编解码组件mediacodec.
+     * Hook Camera的预览方法,转存预览画面.
      */
-    public void hookMediaCodec(Context context) {
 
-        Class recordThreadClazz = null;
-        try {
-            recordThreadClazz = Class.forName("cn.yongye.androidability.screenrecord.MediaMuxerScreenRecordThread"
-                    , true, context.getClassLoader());
-        } catch (Exception exception) {
-            exception.printStackTrace();
-            return;
-        }
-        DexposedBridge.findAndHookMethod(recordThreadClazz, "onEncodedAvcFrame", ByteBuffer.class
-                , MediaCodec.BufferInfo.class, new XC_MethodHook() {
+    public void hookCameraPreview(Context context) {
+        DexposedBridge.hookAllMethods(Camera.class, "startPreview", new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                super.beforeHookedMethod(param);
+                LogUtil.i(TAG, "Camera.startPreview called");
+                Camera camera = (Camera) param.thisObject;
+                LogUtil.printStact(TAG);
+                //设置回调方法,获取预览数据.
+                camera.setPreviewCallback(new Camera.PreviewCallback() {
                     @Override
-                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                        super.beforeHookedMethod(param);
-                    }
-
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        super.afterHookedMethod(param);
-                        ByteBuffer byteBuffer = (ByteBuffer) param.args[0];
-                        MediaCodec.BufferInfo bufferInfo = (MediaCodec.BufferInfo) param.args[1];
-                        DexposedBridge.log(String.format("[*] bytebuffer=%s bufferinfo=%s", byteBuffer
-                                , bufferInfo));
+                    public void onPreviewFrame(byte[] data, Camera camera) {
+                        if (HookPreviewManager.mYUVQueue.size() > 100) {
+                            HookPreviewManager.mYUVQueue.poll();
+                        }
+                        HookPreviewManager.mYUVQueue.add(data);
+                        if (!HookPreviewManager.printSize) {
+                            DexposedBridge.log(String.format("%sx%s", camera.getParameters().getPreviewSize().height
+                                    , camera.getParameters().getPreviewSize().width));
+                            HookPreviewManager.printSize = true;
+                        }
+                        if (!HookPreviewManager.startRecord) {
+                            DexposedBridge.log("start record preview mp4.");
+                            HookPreviewManager.getInstance().setCacheDirectoryPath(context.getCacheDir().getAbsolutePath());
+                            MediaMuxerManager.getInstance().init();
+                            EncoderManager.getInstance().startEncode(camera.getParameters().getPreviewSize());
+                            HookPreviewManager.startRecord = true;
+                        }
                     }
                 });
+            }
+
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                super.afterHookedMethod(param);
+            }
+        });
+
+        DexposedBridge.hookAllMethods(Camera.class, "stopPreview", new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                super.beforeHookedMethod(param);
+                DexposedBridge.log("Camera.stopPreview called");
+                DexposedBridge.log("mYUVQueue empty, close muxer");
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        while (!HookPreviewManager.mYUVQueue.isEmpty()) {
+                            try {
+                                Thread.sleep(1000);
+                            }catch (Exception exception) {
+                                exception.printStackTrace();
+                            }
+                        }
+                        EncoderManager.getInstance().close();
+                        HookPreviewManager.getInstance().resetStatusOnFinishPreview();
+                    }
+                }).start();
+            }
+
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                super.afterHookedMethod(param);
+            }
+        });
     }
 }

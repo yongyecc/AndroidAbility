@@ -2,6 +2,8 @@ package cn.yongye.androidability.common;
 
 import android.util.Log;
 
+import de.robv.android.xposed.DexposedBridge;
+
 public class LogUtil {
     private static final boolean DEBUG = BuildConfig.DEBUG;
     private static final String PRE_TAG = "AndroidAbility:";
@@ -38,5 +40,15 @@ public class LogUtil {
      */
     public static void e(String tag, String msg) {
         Log.e(PRE_TAG + tag, msg);
+    }
+
+    /**
+     * 打印调用堆栈.
+     */
+    public static void printStact(String tag) {
+        //打印方法调用堆栈
+        for (StackTraceElement stackTraceElement : new Throwable().getStackTrace()) {
+            LogUtil.d(tag, "\t" + stackTraceElement.toString());
+        }
     }
 }
