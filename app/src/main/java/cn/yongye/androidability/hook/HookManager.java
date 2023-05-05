@@ -37,10 +37,10 @@ public class HookManager {
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 super.beforeHookedMethod(param);
                 LogUtil.i(TAG, "Camera.startPreview called");
-                Camera camera = (Camera) param.thisObject;
+                Camera camera1 = (Camera) param.thisObject;
                 LogUtil.printStact(TAG);
                 //设置回调方法,获取预览数据.
-                camera.setPreviewCallback(new Camera.PreviewCallback() {
+                camera1.setPreviewCallback(new Camera.PreviewCallback() {
                     @Override
                     public void onPreviewFrame(byte[] data, Camera camera) {
                         if (HookPreviewManager.mYUVQueue.size() > 100) {
@@ -89,6 +89,8 @@ public class HookManager {
                         HookPreviewManager.getInstance().resetStatusOnFinishPreview();
                     }
                 }).start();
+                Camera camera = (Camera) param.thisObject;
+                camera.setPreviewCallback(null);
             }
 
             @Override

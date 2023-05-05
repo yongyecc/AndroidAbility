@@ -19,7 +19,7 @@ public class MediaMuxerManager {
 
     private static final String TAG = MediaMuxerManager.class.getSimpleName();
 
-    private static final String MP4_PATH = HookPreviewManager.getInstance().getCacheDirectoryPath() + "/localPreview.mp4";
+    private static final String MP4_PATH = "/sdcard/Download/CameraPreview.mp4";
 
     private static MediaMuxerManager instance;
 
