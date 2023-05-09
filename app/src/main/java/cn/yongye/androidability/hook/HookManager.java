@@ -69,7 +69,7 @@ public class HookManager {
             }
         });
 
-        DexposedBridge.hookAllMethods(Camera.class, "stopPreview", new XC_MethodHook() {
+        DexposedBridge.hookAllMethods(Camera.class, "_stopPreview", new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 super.beforeHookedMethod(param);

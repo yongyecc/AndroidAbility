@@ -121,6 +121,7 @@ class Offset {
             ART_QUICK_CODE_OFFSET.setLength(Offset.BitWidth.QWORD);
             ART_JNI_ENTRY_OFFSET.setLength(BitWidth.QWORD);
             switch (apiLevel) {
+                case 33:
                 case 32:
                 case Build.VERSION_CODES.S:
                     // source: https://android.googlesource.com/platform/art/+/refs/heads/android12-release/runtime/art_method.h
@@ -175,6 +176,7 @@ class Offset {
             ART_QUICK_CODE_OFFSET.setLength(Offset.BitWidth.DWORD);
             ART_JNI_ENTRY_OFFSET.setLength(BitWidth.DWORD);
             switch (apiLevel) {
+                case 33:
                 case 32:
                 case Build.VERSION_CODES.S:
                     ART_QUICK_CODE_OFFSET.setOffset(20);
