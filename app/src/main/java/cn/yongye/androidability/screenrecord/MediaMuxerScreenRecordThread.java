@@ -187,7 +187,7 @@ public class MediaMuxerScreenRecordThread extends Thread{
                 }
                 //音频输出
                 int audioOutputID = mAudioMediaCodec.dequeueOutputBuffer(audioInfo, 0);
-                Log.d(TAG, "audio flags " + audioInfo.flags);
+                LogUtil.d(TAG, "audio flags " + audioInfo.flags);
                 if (audioOutputID >= 0) {
                     audioInfo.presentationTimeUs += 1000 * 1000 / ScreenRecordBean.FRAME_RATE;//保持 视频和音频的统一，防止 时间画面声音 不同步
                     if (audioInfo.flags != 2 && mMuxerStarted) {

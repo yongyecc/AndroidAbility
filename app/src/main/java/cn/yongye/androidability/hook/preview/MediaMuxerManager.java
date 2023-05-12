@@ -9,6 +9,7 @@ import android.util.Log;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import cn.yongye.androidability.common.LogUtil;
 import de.robv.android.xposed.DexposedBridge;
 
 /**
@@ -46,17 +47,17 @@ public class MediaMuxerManager {
 
     public void init() {
         try {
-            Log.d(TAG, "init");
+            LogUtil.i(TAG, "init");
             mediaMuxer = new MediaMuxer(MP4_PATH, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
         } catch (IOException e) {
-            Log.e(TAG, "init " + e);
+            e.printStackTrace();
         }
 
     }
 
     public int addTrack(MediaFormat mediaFormat) {
         synchronized (instance) {
-            Log.d(TAG, "addTrack");
+            LogUtil.i(TAG, "addTrack");
             trackCount++;
             return mediaMuxer.addTrack(mediaFormat);
         }
