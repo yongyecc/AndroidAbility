@@ -14,8 +14,9 @@
     <string name="switch_camera">切换摄像头</string>
 
     <!-- Activity栈-->
-    <string name="new_task_activity">New task and add activity</string>
+    <string name="new_task_activity">新增Task，加入Activity</string>
 
     <!-- CAMERA-->
     <string name="start_preview_tip">请先开始预览</string>
+    <string name="opengl_draw">OpenGL ES绘制</string>
 </resources>

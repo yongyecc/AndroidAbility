@@ -56,6 +56,9 @@ public class MainActivity extends AppCompatActivity {
         //Camera预览+Hook播放
         listData.put(R.string.camera_preview_and_hook,
                 ViewUtils.getStringById(this, R.string.camera_preview_and_hook));
+        //openGL功能页面
+        listData.put(R.string.opengl_draw,
+                ViewUtils.getStringById(this, R.string.opengl_draw));
     }
 
     /**

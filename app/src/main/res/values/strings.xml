@@ -13,8 +13,10 @@
     <string name="switch_camera">Switch Camera</string>
 
     <!-- Activity栈-->
-    <string name="new_task_activity">新增Task，加入Activity</string>
+    <string name="new_task_activity">New task and add activity</string>
 
     <!-- CAMERA-->
     <string name="start_preview_tip">Please start the preview first</string>
+    <!-- OpenGL ES绘制 -->
+    <string name="opengl_draw">OpenGL ES draw </string>
 </resources>

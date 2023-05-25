@@ -22,6 +22,7 @@ import cn.yongye.androidability.dooddle.activity.PathActivity;
 import cn.yongye.androidability.common.LogUtil;
 import cn.yongye.androidability.common.PermissionUtil;
 import cn.yongye.androidability.common.ViewUtils;
+import cn.yongye.androidability.opengl.activity.OpenGLDemoListActivity;
 import cn.yongye.androidability.screenrecord.ScreenRecordBean;
 import cn.yongye.androidability.screenrecord.ScreenRecordManager;
 
@@ -101,6 +102,9 @@ public class DemoListAdapter extends RecyclerView.Adapter<DemoListAdapter.ViewHo
                      v.getContext().startActivity(new Intent(v.getContext(), TaskActivity.class));
                  } else if (demo_name.equals(ViewUtils.getStringById(v.getContext(), R.string.camera_preview_and_hook))) {
                      v.getContext().startActivity(new Intent(v.getContext(), CameraPreviewActivity.class));
+                 } else if (demo_name.equals(ViewUtils.getStringById(v.getContext(), R.string.opengl_draw))) {
+                     //OpenGL ES绘制
+                     v.getContext().startActivity(new Intent(v.getContext(), OpenGLDemoListActivity.class));
                  }
             }
         });

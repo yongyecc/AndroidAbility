@@ -49,6 +49,9 @@
 
         <!-- Camera预览页面-->
         <activity android:name=".camera.activity.CameraPreviewActivity"/>
+
+        <!-- openGL功能演示页面-->
+        <activity android:name=".opengl.activity.OpenGLDemoListActivity"/>
     </application>
 
 </manifest>
