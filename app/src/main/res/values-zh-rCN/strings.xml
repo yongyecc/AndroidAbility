@@ -19,4 +19,5 @@
     <!-- CAMERA-->
     <string name="start_preview_tip">请先开始预览</string>
     <string name="opengl_draw">OpenGL ES绘制</string>
+    <string name="draw_a_triangle">绘制一个三角形</string>
 </resources>

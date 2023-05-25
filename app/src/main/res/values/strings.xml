@@ -19,4 +19,5 @@
     <string name="start_preview_tip">Please start the preview first</string>
     <!-- OpenGL ES绘制 -->
     <string name="opengl_draw">OpenGL ES draw </string>
+    <string name="draw_a_triangle">Draw One Triangle</string>
 </resources>

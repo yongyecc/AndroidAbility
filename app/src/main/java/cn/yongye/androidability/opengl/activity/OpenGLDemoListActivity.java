@@ -35,6 +35,8 @@ public class OpenGLDemoListActivity extends Activity {
         if (listData == null) {
             listData = new LinkedHashMap<>();
         }
+        listData.put(R.string.draw_a_triangle,
+                ViewUtils.getStringById(this, R.string.draw_a_triangle));
     }
 
     private void initView() {

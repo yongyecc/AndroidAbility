@@ -26,6 +26,8 @@ import cn.yongye.androidability.common.LogUtil;
 import cn.yongye.androidability.common.PermissionUtil;
 import cn.yongye.androidability.common.ViewUtils;
 import cn.yongye.androidability.dooddle.activity.PathActivity;
+import cn.yongye.androidability.opengl.activity.OpenGLDemoListActivity;
+import cn.yongye.androidability.opengl.activity.TriangleActivity;
 import cn.yongye.androidability.screenrecord.ScreenRecordBean;
 import cn.yongye.androidability.screenrecord.ScreenRecordManager;
 
@@ -81,30 +83,10 @@ public class OpenGLRecelerViewAdapter extends RecyclerView.Adapter<OpenGLReceler
                 if (demo_name == null) {
                     return;
                 }
-                //MediaRecorder录屏.
-                if (demo_name.equals(ViewUtils.getStringById(v.getContext(), R.string.screen_record_mediarecoder))
-                        || demo_name.equals(ViewUtils.getStringById(v.getContext(), R.string.screen_record_mediamuxer))) {
-                    if (demo_name.equals(ViewUtils.getStringById(v.getContext(),
-                            R.string.screen_record_mediamuxer))) {
-                        ScreenRecordBean.SCREEN_RECORD_TYPE = ScreenRecordBean.RECORD_TYPE_MEDIAMUXER;
-                    } else {
-                        ScreenRecordBean.SCREEN_RECORD_TYPE = ScreenRecordBean.RECORD_TYPE_MEDIARECORD;
-                    }
-                    //检查权限并申请屏幕共享权限
-                    PermissionUtil.checkAndRequestMorePermissions(MainActivity.mainActivity,
-                            ScreenRecordBean.screenPermission, REQUEST_SCREEN_RECORDER_PERMISSION);
-                    //开启屏幕录制(MediaRecorder)
-                    if (!ScreenRecordBean.RECORD_STATUS) {
-                        ScreenRecordManager.getInstance().startScreenRecord(MainActivity.mainActivity);
-                    } else {
-                        ScreenRecordManager.getInstance().stopScreenRecord(MainActivity.mainActivity);
-                    }
-                } else if (demo_name.equals(ViewUtils.getStringById(v.getContext(), R.string.doodle_by_path))) {
-                    v.getContext().startActivity(new Intent(v.getContext(), PathActivity.class));
-                } else if (demo_name.equals(ViewUtils.getStringById(v.getContext(), R.string.task_activity))) {
-                    v.getContext().startActivity(new Intent(v.getContext(), TaskActivity.class));
-                } else if (demo_name.equals(ViewUtils.getStringById(v.getContext(), R.string.camera_preview_and_hook))) {
-                    v.getContext().startActivity(new Intent(v.getContext(), CameraPreviewActivity.class));
+                //绘制一个三角形
+                if (demo_name.equals(ViewUtils.getStringById(v.getContext(), R.string.draw_a_triangle))
+                        || demo_name.equals(ViewUtils.getStringById(v.getContext(), R.string.draw_a_triangle))) {
+                    v.getContext().startActivity(new Intent(v.getContext(), TriangleActivity.class));
                 }
             }
         });
