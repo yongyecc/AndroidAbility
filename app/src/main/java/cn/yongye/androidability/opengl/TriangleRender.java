@@ -26,8 +26,18 @@ public class TriangleRender implements GLSurfaceView.Renderer {
     private String vertexShaderCode =
             "precision mediump float;\n" +
                     "attribute vec4 a_Position;\n" +
+                    "uniform float u_Ratio;\n" +
+                    "uniform float u_Rotate;\n" +
                     "void main() {\n" +
-                    "    gl_Position = a_Position;\n" +
+                    "   vec4 p = a_Position;\n" +
+                    "   p.y = p.y / u_Ratio;\n" +
+                    "   mat4 rotateMatrix = mat4(cos(u_Rotate), sin(u_Rotate), 0.0, 0.0,\n" +
+                    "                         -sin(u_Rotate), cos(u_Rotate), 0.0, 0.0,\n" +
+                    "                         0.0, 0.0, 1.0, 0.0,\n" +
+                    "                         0.0, 0.0, 0.0, 1.0);\n" +
+                    "    p = rotateMatrix * p;\n" +
+                    "    p.y = p.y * u_Ratio;\n" +
+                    "    gl_Position = p;\n" +
                     "}";
     //片段着色器
     private String fragmentShaderCode =
@@ -105,5 +115,18 @@ public class TriangleRender implements GLSurfaceView.Renderer {
         GLES20.glEnableVertexAttribArray(location);
         // 指定a_Position所使用的顶点数据
         GLES20.glVertexAttribPointer(location, 2, GLES20.GL_FLOAT, false,0, buffer);
+
+        //u_Ratio修复旋转导致图形变形问题.
+        // 获取字段u_Ratio在shader中的位置
+        int uRatioLocation = GLES20.glGetUniformLocation(programId, "u_Ratio");
+        // 启动对应位置的参数
+        GLES20.glEnableVertexAttribArray(uRatioLocation);
+        // 指定u_Ratio所使用的顶点数据
+        GLES20.glUniform1f(uRatioLocation, glSurfaceViewWidth * 1.0f / glSurfaceViewHeight);
+
+        //设置旋转角度
+        int uRotateLocation = GLES20.glGetUniformLocation(programId, "u_Rotate");
+        GLES20.glEnableVertexAttribArray(uRotateLocation);
+        GLES20.glUniform1f(uRotateLocation, (float) Math.toRadians(90));
     }
 }
