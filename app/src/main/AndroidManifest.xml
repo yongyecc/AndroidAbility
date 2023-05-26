@@ -53,6 +53,7 @@
         <!-- openGL功能演示页面-->
         <activity android:name=".opengl.activity.OpenGLDemoListActivity"/>
         <activity android:name=".opengl.activity.TriangleActivity"/>
+        <activity android:name=".opengl.activity.TextureActivity"/>
     </application>
 
 </manifest>

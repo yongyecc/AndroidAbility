@@ -7,17 +7,18 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 
 import cn.yongye.androidability.R;
-import cn.yongye.androidability.opengl.render.TriangleRender;
+import cn.yongye.androidability.opengl.render.TextureRender;
 
-public class TriangleActivity extends Activity {
-
+public class TextureActivity extends Activity {
 
     GLSurfaceView glSurfaceView;
+    public static TextureActivity textureActivity;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_triangle);
+        textureActivity = this;
 
         initView();
     }
@@ -29,6 +30,6 @@ public class TriangleActivity extends Activity {
         // 设置GL版本，这里设置为2.0
         glSurfaceView.setEGLContextClientVersion(2);
         //设置着色器
-        glSurfaceView.setRenderer(new TriangleRender());
+        glSurfaceView.setRenderer(new TextureRender());
     }
 }

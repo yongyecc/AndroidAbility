@@ -1,4 +1,4 @@
-package cn.yongye.androidability.opengl;
+package cn.yongye.androidability.opengl.render;
 
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;

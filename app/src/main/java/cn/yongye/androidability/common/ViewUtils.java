@@ -1,6 +1,8 @@
 package cn.yongye.androidability.common;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.Gravity;
 import android.widget.Toast;
 
@@ -38,4 +40,26 @@ public class ViewUtils {
         toast.setGravity(Gravity.CENTER, 0, 0);
         toast.show();
     }
+
+    /**
+     * 获取assets目录下的文件，转成Bitmap.
+     * @param context .
+     * @param filepath  .
+     * @return  .
+     */
+    public static Bitmap getResourceBitmap(Context context, String filepath) {
+        Bitmap bitmap = null;
+        try {
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inSampleSize = 1;
+            bitmap = BitmapFactory.decodeStream(context.getAssets().open(filepath));
+            if (bitmap == null) {
+                LogUtil.e(TAG, "Bitmap decode fail, path = " + filepath);
+            }
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+        return bitmap;
+    }
+
 }

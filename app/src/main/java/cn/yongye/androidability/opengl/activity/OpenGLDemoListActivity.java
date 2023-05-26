@@ -37,6 +37,8 @@ public class OpenGLDemoListActivity extends Activity {
         }
         listData.put(R.string.draw_a_triangle,
                 ViewUtils.getStringById(this, R.string.draw_a_triangle));
+        listData.put(R.string.draw_by_texture,
+                ViewUtils.getStringById(this, R.string.draw_by_texture));
     }
 
     private void initView() {

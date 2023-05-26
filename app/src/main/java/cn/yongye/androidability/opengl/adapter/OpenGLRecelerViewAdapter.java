@@ -27,6 +27,7 @@ import cn.yongye.androidability.common.PermissionUtil;
 import cn.yongye.androidability.common.ViewUtils;
 import cn.yongye.androidability.dooddle.activity.PathActivity;
 import cn.yongye.androidability.opengl.activity.OpenGLDemoListActivity;
+import cn.yongye.androidability.opengl.activity.TextureActivity;
 import cn.yongye.androidability.opengl.activity.TriangleActivity;
 import cn.yongye.androidability.screenrecord.ScreenRecordBean;
 import cn.yongye.androidability.screenrecord.ScreenRecordManager;
@@ -87,6 +88,10 @@ public class OpenGLRecelerViewAdapter extends RecyclerView.Adapter<OpenGLReceler
                 if (demo_name.equals(ViewUtils.getStringById(v.getContext(), R.string.draw_a_triangle))
                         || demo_name.equals(ViewUtils.getStringById(v.getContext(), R.string.draw_a_triangle))) {
                     v.getContext().startActivity(new Intent(v.getContext(), TriangleActivity.class));
+                } else if (demo_name.equals(ViewUtils.getStringById(v.getContext(), R.string.draw_by_texture))
+                        || demo_name.equals(ViewUtils.getStringById(v.getContext(), R.string.draw_by_texture))) {
+                    //使用纹理
+                    v.getContext().startActivity(new Intent(v.getContext(), TextureActivity.class));
                 }
             }
         });
